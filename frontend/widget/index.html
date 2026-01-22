@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>x402 Payment Widget</title>
+    <link rel="stylesheet" href="./widget.css">
+</head>
+
+<body>
+    <div id="widget-container">
+        <div id="widget-content">
+            <div id="widget-header">
+                <h2>Monthly Subscription</h2>
+                <p id="widget-description">Secure recurring payment via x402</p>
+            </div>
+
+            <div id="widget-body">
+                <div id="widget-status">
+                    <div class="status-icon">⟳</div>
+                    <p id="status-message">Initializing...</p>
+                </div>
+
+                <div id="payment-info" style="display: none;">
+                    <div class="info-row">
+                        <span class="info-label">Amount:</span>
+                        <span id="payment-amount" class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Frequency:</span>
+                        <span class="info-value">Monthly</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Merchant:</span>
+                        <span id="merchant-id" class="info-value">-</span>
+                    </div>
+                </div>
+
+                <div id="wallet-section" style="display: none;">
+                    <button id="connect-wallet-btn" class="primary-button">
+                        Connect MetaMask
+                    </button>
+                </div>
+
+                <div id="sign-section" style="display: none;">
+                    <div class="info-box">
+                        <p>✓ Wallet connected</p>
+                        <p id="connected-address" class="small-text">-</p>
+                    </div>
+                    <button id="sign-btn" class="primary-button">
+                        Sign & Subscribe
+                    </button>
+                    <p class="small-text">One-time signature for recurring payments</p>
+                </div>
+
+                <div id="success-section" style="display: none;">
+                    <div class="success-box">
+                        <div class="status-icon">✓</div>
+                        <h3>Subscription Active!</h3>
+                        <p>Payments will execute automatically every month</p>
+                        <p id="subscription-id" class="small-text">-</p>
+                    </div>
+                </div>
+
+                <div id="error-section" style="display: none;">
+                    <div class="error-box">
+                        <div class="status-icon">✕</div>
+                        <p id="error-message">-</p>
+                    </div>
+                    <button id="retry-btn" class="secondary-button">
+                        Retry
+                    </button>
+                </div>
+            </div>
+
+            <div id="widget-footer">
+                <p class="powered-by">Powered by <strong>x402</strong> • Gas-free payments</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./widget.ts"></script>
+</body>
+
+</html>

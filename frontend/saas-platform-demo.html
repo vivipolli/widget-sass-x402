@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamFlow - Video Streaming Platform</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #0f0f0f;
+      color: white;
+    }
+
+    .navbar {
+      background: #1a1a1a;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .nav-links a {
+      color: #aaa;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 80px 32px 40px;
+      background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 20px;
+      color: #aaa;
+      margin-bottom: 32px;
+    }
+
+    .pricing-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 32px;
+    }
+
+    .pricing-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .pricing-header h2 {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .pricing-header p {
+      font-size: 18px;
+      color: #aaa;
+    }
+
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: #1a1a1a;
+      border: 2px solid #333;
+      border-radius: 16px;
+      padding: 32px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      border-color: #667eea;
+    }
+
+    .pricing-card.featured {
+      border-color: #667eea;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    }
+
+    .plan-name {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .plan-price {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .plan-price span {
+      font-size: 20px;
+      color: #aaa;
+    }
+
+    .plan-period {
+      color: #aaa;
+      margin-bottom: 24px;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+
+    .plan-features li {
+      padding: 12px 0;
+      border-bottom: 1px solid #333;
+      color: #ccc;
+    }
+
+    .plan-features li:last-child {
+      border-bottom: none;
+    }
+
+    .plan-features li::before {
+      content: "✓ ";
+      color: #48bb78;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    .subscribe-btn {
+      width: 100%;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .subscribe-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1a1a;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 480px;
+      width: 100%;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-header h2 {
+      font-size: 24px;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 32px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+    }
+
+    .close-btn:hover {
+      color: white;
+    }
+
+    .widget-container {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      min-height: 600px;
+      width: 100%;
+    }
+
+    .widget-container iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      display: block;
+      background: white;
+    }
+
+    .features-section {
+      max-width: 1200px;
+      margin: 80px auto;
+      padding: 0 32px;
+      text-align: center;
+    }
+
+    .features-section h2 {
+      font-size: 36px;
+      margin-bottom: 48px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 32px;
+    }
+
+    .feature-card {
+      padding: 24px;
+      background: #1a1a1a;
+      border-radius: 12px;
+      border: 1px solid #333;
+    }
+
+    .feature-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .feature-card p {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .footer {
+      background: #1a1a1a;
+      border-top: 1px solid #333;
+      padding: 32px;
+      text-align: center;
+      color: #aaa;
+      margin-top: 80px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .config-modal {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .config-modal.hidden {
+      display: none;
+    }
+
+    .config-modal-content {
+      background: #1a1a1a;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 500px;
+      width: 100%;
+      position: relative;
+      border: 2px solid #667eea;
+    }
+
+    .config-modal-header {
+      margin-bottom: 24px;
+    }
+
+    .config-modal-header h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .config-modal-header p {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .config-form-group {
+      margin-bottom: 20px;
+    }
+
+    .config-form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .config-form-group input,
+    .config-form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      background: #2a2a2a;
+      border: 2px solid #333;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .config-form-group input:focus,
+    .config-form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .config-form-group .input-with-btn {
+      display: flex;
+      gap: 8px;
+    }
+
+    .config-form-group .input-with-btn input {
+      flex: 1;
+    }
+
+    .config-connect-btn {
+      padding: 12px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+
+    .config-connect-btn:hover {
+      background: #5568d3;
+    }
+
+    .config-connect-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    .config-connect-btn.connected {
+      background: #48bb78;
+    }
+
+    .config-helper-text {
+      font-size: 12px;
+      color: #888;
+      margin-top: 6px;
+    }
+
+    .config-modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .config-btn-primary {
+      flex: 1;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .config-btn-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    .config-btn-secondary {
+      padding: 14px 24px;
+      background: #2a2a2a;
+      color: white;
+      border: 2px solid #444;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .config-btn-secondary:hover {
+      background: #333;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">🎬 StreamFlow</div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#about">About</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="badge">Powered by x402 Protocol</div>
+    <h1>Unlimited Entertainment</h1>
+    <p>Watch thousands of movies and shows. Cancel anytime.</p>
+  </section>
+
+  <section id="pricing" class="pricing-section">
+    <div class="pricing-header">
+      <h2>Choose Your Plan</h2>
+      <p>All plans include unlimited streaming and HD quality</p>
+    </div>
+
+    <div class="pricing-cards">
+      <div class="pricing-card">
+        <div class="plan-name">Basic</div>
+        <div class="plan-price">$4.99<span>/mo</span></div>
+        <div class="plan-period">Billed monthly via crypto</div>
+        <ul class="plan-features">
+          <li>HD quality (720p)</li>
+          <li>Watch on 1 device</li>
+          <li>Unlimited movies & shows</li>
+          <li>Cancel anytime</li>
+        </ul>
+        <button class="subscribe-btn" onclick="openSubscribe('Basic', 4990000)">
+          Subscribe Now
+        </button>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="plan-name">Premium</div>
+        <div class="plan-price">$9.99<span>/mo</span></div>
+        <div class="plan-period">Billed monthly via crypto</div>
+        <ul class="plan-features">
+          <li>4K Ultra HD quality</li>
+          <li>Watch on 4 devices</li>
+          <li>Unlimited movies & shows</li>
+          <li>Download content</li>
+          <li>Cancel anytime</li>
+        </ul>
+        <button class="subscribe-btn" onclick="openSubscribe('Premium', 9990000)">
+          Subscribe Now
+        </button>
+      </div>
+
+      <div class="pricing-card">
+        <div class="plan-name">Family</div>
+        <div class="plan-price">$14.99<span>/mo</span></div>
+        <div class="plan-period">Billed monthly via crypto</div>
+        <ul class="plan-features">
+          <li>4K Ultra HD quality</li>
+          <li>Watch on 6 devices</li>
+          <li>Unlimited movies & shows</li>
+          <li>Download content</li>
+          <li>6 user profiles</li>
+          <li>Cancel anytime</li>
+        </ul>
+        <button class="subscribe-btn" onclick="openSubscribe('Family', 14990000)">
+          Subscribe Now
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="features-section">
+    <h2>Why StreamFlow?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Crypto Payments</h3>
+        <p>Pay with crypto. Sign once, automatic monthly payments via x402 Protocol.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>No Gas Fees</h3>
+        <p>Zero transaction fees. x402 Facilitator covers all gas costs.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Truly Global</h3>
+        <p>No credit card needed. Access from anywhere in the world.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <h3>Auto-Renew</h3>
+        <p>Automatic monthly renewal. Cancel anytime with no penalties.</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="config-modal" class="config-modal">
+    <div class="config-modal-content">
+      <div class="config-modal-header">
+        <h2>⚙️ Widget Configuration</h2>
+        <p>Configure widget parameters for testing (Demo Mode)</p>
+      </div>
+      <form id="config-form">
+        <div class="config-form-group">
+          <label for="config-merchant-id">Merchant ID</label>
+          <input type="text" id="config-merchant-id" placeholder="demo-merchant-123" value="demo-merchant-123" required>
+          <p class="config-helper-text">Your merchant identifier</p>
+        </div>
+
+        <div class="config-form-group">
+          <label for="config-recipient">Recipient Wallet Address</label>
+          <div class="input-with-btn">
+            <input type="text" id="config-recipient" placeholder="0x..." value="" required>
+            <button type="button" id="config-connect-btn" class="config-connect-btn"
+              onclick="connectMetaMaskForConfig()">
+              Connect MetaMask
+            </button>
+          </div>
+          <p class="config-helper-text">Address where payments will be received</p>
+        </div>
+
+        <div class="config-form-group">
+          <label for="config-amount">Monthly Amount (USDC)</label>
+          <input type="number" id="config-amount" placeholder="9.99" value="9.99" step="0.01" min="0.01" required>
+          <p class="config-helper-text">Subscription amount per month</p>
+        </div>
+
+        <div class="config-form-group">
+          <label for="config-token">Token</label>
+          <select id="config-token">
+            <option value="0xf329184c1b464411bd683a2e8f42c1bfe42b2331">DevUSDCe (Cronos Testnet)</option>
+          </select>
+          <p class="config-helper-text">Payment token</p>
+        </div>
+
+        <div class="config-modal-actions">
+          <button type="button" class="config-btn-secondary" onclick="skipConfig()">Skip (Use Defaults)</button>
+          <button type="submit" class="config-btn-primary">Apply Configuration</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="subscribe-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Complete Subscription</h2>
+        <button class="close-btn" onclick="closeSubscribe()">&times;</button>
+      </div>
+      <div class="widget-container">
+        <iframe id="payment-widget"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2026 StreamFlow. Demo platform powered by x402 Protocol.</p>
+    <p style="margin-top: 8px; font-size: 12px;">
+      This is a demonstration of x402 recurring payment widget integration.
+    </p>
+  </footer>
+
+  <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script>
+    const configModal = document.getElementById('config-modal');
+    const subscribeModal = document.getElementById('subscribe-modal');
+    const widgetIframe = document.getElementById('payment-widget');
+    const configForm = document.getElementById('config-form');
+    const configConnectBtn = document.getElementById('config-connect-btn');
+    const configRecipientInput = document.getElementById('config-recipient');
+
+    let widgetConfig = {
+      merchantId: 'demo-merchant-123',
+      recipient: '',
+      amount: '9990000',
+      token: '0xf329184c1b464411bd683a2e8f42c1bfe42b2331'
+    };
+
+    async function connectMetaMaskForConfig() {
+      if (!window.ethereum) {
+        alert('MetaMask is not installed. Please install MetaMask to connect your wallet.');
+        return;
+      }
+
+      try {
+        configConnectBtn.disabled = true;
+        configConnectBtn.textContent = 'Connecting...';
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        const address = await signer.getAddress();
+
+        configRecipientInput.value = address;
+        configConnectBtn.textContent = 'Connected ✓';
+        configConnectBtn.classList.add('connected');
+
+        setTimeout(() => {
+          configConnectBtn.disabled = false;
+        }, 1000);
+      } catch (error) {
+        console.error('Error connecting MetaMask:', error);
+        alert('Failed to connect MetaMask: ' + (error.message || 'User rejected connection'));
+        configConnectBtn.disabled = false;
+        configConnectBtn.textContent = 'Connect MetaMask';
+      }
+    }
+
+    configRecipientInput.addEventListener('input', () => {
+      if (configConnectBtn.classList.contains('connected')) {
+        configConnectBtn.classList.remove('connected');
+        configConnectBtn.textContent = 'Connect MetaMask';
+      }
+    });
+
+    configForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const merchantId = document.getElementById('config-merchant-id').value;
+      const recipient = document.getElementById('config-recipient').value;
+      const amountDisplay = parseFloat(document.getElementById('config-amount').value);
+      const token = document.getElementById('config-token').value;
+
+      if (!merchantId || !recipient || !amountDisplay || !token) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      widgetConfig = {
+        merchantId,
+        recipient,
+        amount: Math.floor(amountDisplay * 1000000).toString(),
+        token
+      };
+
+      configModal.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    });
+
+    function skipConfig() {
+      widgetConfig = {
+        merchantId: 'demo-merchant-123',
+        recipient: '0x490A1814Bd4b99Ae4730Bf3acf82Cd7a5257CD33',
+        amount: '9990000',
+        token: '0xf329184c1b464411bd683a2e8f42c1bfe42b2331'
+      };
+      configModal.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    function openSubscribe(planName, planAmountBaseUnits) {
+      if (!widgetConfig.recipient) {
+        alert('Please configure the widget first. Recipient address is required.');
+        configModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        return;
+      }
+
+      const baseUrl = window.location.origin;
+      const amount = planAmountBaseUnits || widgetConfig.amount;
+      const queryParams = `merchantId=${widgetConfig.merchantId}&amount=${amount}&recipient=${widgetConfig.recipient}&token=${widgetConfig.token}`;
+      const widgetUrl = `${baseUrl}/widget/index.html?${queryParams}`;
+
+      widgetIframe.src = widgetUrl;
+      subscribeModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSubscribe() {
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+      widgetIframe.src = '';
+    }
+
+    // Close subscribe modal on background click
+    subscribeModal.addEventListener('click', (e) => {
+      if (e.target === subscribeModal) {
+        closeSubscribe();
+      }
+    });
+
+    // Close modals on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (subscribeModal.classList.contains('active')) {
+          closeSubscribe();
+        }
+        if (!configModal.classList.contains('hidden')) {
+          skipConfig();
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
