@@ -1,0 +1,5 @@
+Project Overview
+This project is an embeddable recurring payment widget for SaaS platforms on Cronos EVM, powered by the x402 protocol. Merchants generate a simple iframe snippet and drop it into any frontend, giving customers a familiar subscription experience where they connect MetaMask, approve a plan, and complete signup inside the widget.
+The core feature is “sign once, pay monthly” using EIP-3009: the customer signs a single authorization that the backend can reuse to execute recurring settlements later via the x402 Facilitator, with gas sponsorship. This enables automated, programmatic subscription payments without monthly wallet prompts, while keeping funds non-custodial (debited from the user’s wallet only at execution time).
+
+x402 subscription widget for SaaS: sign once, auto-pay monthly.

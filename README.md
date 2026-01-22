@@ -1,341 +1,136 @@
-# x402 Recurring Payment Widget - Cronos Hackathon
+# Cronos x402 Recurring Subscription Widget (SaaS Payments)
 
-**Enable recurring crypto payments for SaaS platforms with a single customer signature.**
+**A production-style, non-custodial recurring payment workflow for SaaS subscriptions on Cronos EVM — powered by x402.**
 
-Built for the Cronos x402 Paytech Hackathon - **x402 Agentic Finance/Payment Track**
+This project was built for the **Cronos x402 Paytech Hackathon**, focusing on **x402-style programmatic payments** and **agentic/workflow automation** on-chain.
 
-## 🎯 Overview
+## Why this matters 
 
-A complete recurring payment solution for SaaS platforms powered by x402 Protocol. Merchants integrate a simple widget, customers sign once with MetaMask, and payments execute automatically every month with zero gas fees.
+Recurring payments are where most Web3 “payment demos” break:
+- Users don’t want (and won’t accept) a MetaMask prompt every month.
+- Merchants don’t want to custody keys or manage gas.
+- Teams need something embeddable, reliable, and composable into real products.
 
-## ✨ Key Features
+**Our solution:** a **2-line iframe widget** that lets customers **sign once** (EIP-3009), then enables **recurring monthly settlement** via the **x402 Facilitator** with **gas sponsorship** — keeping funds **in the user’s wallet** until the moment of payment.
 
-- **🔐 One-Time Signature** - Customer signs once via EIP-3009, enables unlimited monthly payments
-- **⚡ Zero Gas Fees** - x402 Facilitator covers all transaction costs
-- **🚀 Easy Integration** - Just 2 lines of code (iframe embed)
-- **🔄 Automated Execution** - AI scheduler handles monthly payments automatically
-- **🌐 Fully Decentralized** - Funds transfer directly from customer's wallet
+## What’s implemented today
 
-## 🏗️ Architecture
+- **Merchant dashboard**: configure `merchantId`, recipient wallet, monthly price and generate the iframe embed code.
+- **Embeddable payment widget (iframe)**:
+  - Connects MetaMask on Cronos Testnet
+  - Generates a valid **x402 payment header** using **EIP-3009**
+  - Creates a subscription in the backend with a **reusable authorization**
+- **Backend automation**:
+  - `SubscriptionService` stores subscriptions (in-memory for demo)
+  - `RecurringScheduler` checks due subscriptions and creates payment “intents”
+  - `SimpleExecutor` verifies & settles payments via **x402 Facilitator**
+- **On-chain transparency**:
+  - `IntentRegistry.sol` registers intents on-chain and marks them executed (demo-friendly audit trail)
+
+## Architecture (end-to-end flow)
 
 ```
-┌──────────────────────┐
-│  Merchant Dashboard  │  Generate widget code
-│  (HTML standalone)   │  
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│  SaaS Platform Demo  │  Embed widget iframe
-│  (HTML standalone)   │  
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│  Payment Widget      │  Customer signs once
-│  (iframe)            │  EIP-3009 signature
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│  Backend API         │  - SubscriptionService
-│  (Node.js/Express)   │  - RecurringScheduler
-│                      │  - SimpleExecutor
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│  x402 Facilitator    │  Gas-free execution
-│  (Crypto.com SDK)    │  
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│  Cronos Blockchain   │  On-chain settlement
-│  (IntentRegistry)    │  
-└──────────────────────┘
+Merchant Dashboard (HTML)  ── generate embed code ──►  SaaS Platform (Demo HTML)
+                                                           │
+                                                           ▼
+                                                    Payment Widget (iframe)
+                                                     - Connect wallet
+                                                     - EIP-3009 sign once
+                                                     - x402 payment header
+                                                           │
+                                                           ▼
+Backend API (Node/Express)
+  - SubscriptionService (store subscription)
+  - RecurringScheduler (monthly due check)
+  - IntentService + IntentRegistry (on-chain record)
+  - SimpleExecutor + ExecutionService
+                                                           │
+                                                           ▼
+x402 Facilitator (Crypto.com)  ── gas-sponsored settlement ──►  Cronos EVM Testnet
 ```
 
-## 🎬 Two Main Flows
+## Demo URLs
 
-### 1. **Merchant Flow** - Generate Widget Code
-**URL**: `http://localhost:5173/merchant-dashboard.html`
+- **Landing**: `http://localhost:5173`
+- **Merchant dashboard**: `http://localhost:5173/merchant-dashboard.html`
+- **SaaS platform demo**: `http://localhost:5173/saas-platform-demo.html`
+- **Widget (standalone)**: `http://localhost:5173/widget`
 
-Merchants use this dashboard to:
-- Configure payment amount (e.g., $9.99/month)
-- Set their wallet address for receiving payments
-- Generate embed code for their platform
-- Preview the widget
+## Security model (what makes it non-custodial)
 
-**Output**: Ready-to-use iframe code
+- The **customer signs** the authorization in MetaMask.
+- The backend stores the **x402 payment header** and uses it to settle later.
+- Settlement **debits from the customer wallet** when the payment is executed.
+- Gas fees are **sponsored by the x402 Facilitator**.
 
-### 2. **Customer Flow** - Subscribe via SaaS Platform
-**URL**: `http://localhost:5173/saas-platform-demo.html`
-
-Demo of a streaming platform (StreamFlow) showing:
-- Integration of payment widget in a real SaaS UI
-- Customer subscription process
-- Modal with embedded widget
-- Complete payment flow
-
-**Result**: Recurring subscription with automatic monthly payments
-
-## 🚀 Quick Start
+## Local setup
 
 ### Prerequisites
-- Node.js 18+ and Yarn
-- MetaMask with Cronos Testnet
-- DevUSDCe tokens (get from https://faucet.cronos.org/)
+- Node.js 18+
+- Package manager: `yarn` or `npm`
+- MetaMask on **Cronos Testnet** (chainId `338`)
+- Test tokens: **DevUSDCe** (contract: `0xf329184c1b464411bd683a2e8f42c1bfe42b2331`)
 
-### 1. Start Backend
+### 1) Backend
+
 ```bash
 cd backend
-yarn install
-yarn dev
+yarn install || npm install
+cp .env.example .env
 ```
-✅ Backend running at `http://localhost:8787`
 
-### 2. Start Frontend
+Set these variables in `backend/.env`:
+- `RPC_URL` (default: `https://evm-t3.cronos.org`)
+- `NETWORK=cronos-testnet`
+- `PRIVATE_KEY` (backend executor wallet key; used only to submit on-chain registry updates and as fallback when no user header is provided)
+- `CONTRACT_ADDRESS` (**required**; deployed `IntentRegistry` address)
+- `PORT=8787`
+
+Start backend:
+
+```bash
+yarn dev || npm run dev
+```
+
+### 2) Frontend
+
 ```bash
 cd frontend
-yarn install
-yarn dev
-```
-✅ Frontend running at `http://localhost:5173`
-
-### 3. Try It Out
-
-**For Merchants:**
-1. Visit `http://localhost:5173/merchant-dashboard.html`
-2. Configure your payment amount
-3. Generate and copy embed code
-4. Use in your platform
-
-**For Customers:**
-1. Visit `http://localhost:5173/saas-platform-demo.html`
-2. Click any "Subscribe Now" button
-3. Connect MetaMask
-4. Sign the EIP-3009 message (one-time only)
-5. ✅ Subscription active!
-
-## 📦 Project Structure
-
-```
-cronos/
-├── backend/
-│   ├── contracts/
-│   │   └── IntentRegistry.sol           # Simplified smart contract
-│   ├── src/
-│   │   ├── services/
-│   │   │   ├── subscription.service.ts  # Manage subscriptions
-│   │   │   ├── intent.service.ts        # Intent storage & logs
-│   │   │   ├── execution.service.ts     # x402 execution
-│   │   │   └── contract.service.ts      # On-chain registration
-│   │   ├── schedulers/
-│   │   │   ├── recurring.scheduler.ts   # Monthly intent creation
-│   │   │   └── simple-executor.ts       # Execute intents
-│   │   ├── api/
-│   │   │   ├── controllers/
-│   │   │   │   ├── widget.controller.ts # Widget API
-│   │   │   │   └── intent.controller.ts # Intent API
-│   │   │   └── routes/
-│   │   │       ├── widget.routes.ts     # Widget endpoints
-│   │   │       └── intent.routes.ts     # Intent endpoints
-│   │   └── index.ts
-│   └── package.json
-├── frontend/
-│   ├── merchant-dashboard.html          # Merchant code generator
-│   ├── saas-platform-demo.html          # SaaS demo (StreamFlow)
-│   ├── widget/
-│   │   ├── index.html                   # Widget HTML
-│   │   ├── widget.ts                    # Widget logic (EIP-3009)
-│   │   └── widget.css                   # Widget styles
-│   └── src/                             # Optional admin panel
-│       └── App.tsx                      # Landing page
-└── README.md
+yarn install || npm install
+yarn dev || npm run dev
 ```
 
-## 🔌 Integration Example
+## Integration (what a SaaS needs to add)
 
-### Merchant Side (Your Platform)
+Generated by the merchant dashboard:
+
 ```html
-<!-- Copy this from merchant dashboard -->
-<iframe 
-  src="http://localhost:5173/widget?merchantId=demo-merchant-123&amount=9990000&recipient=0xYourWallet"
+<iframe
+  src="http://localhost:5173/widget?merchantId=demo-merchant-123&amount=9990000&recipient=0xYourWallet&token=0xf329184c1b464411bd683a2e8f42c1bfe42b2331"
   width="100%"
   height="600"
   frameborder="0"
-  style="max-width: 420px;"
+  style="max-width: 420px; margin: 0 auto; display: block;"
 ></iframe>
 ```
 
-### Parameters
-| Parameter | Description | Example |
-|-----------|-------------|---------|
-| `merchantId` | Your merchant ID | `demo-merchant-123` |
-| `amount` | Monthly amount in base units | `9990000` (9.99 USDC) |
-| `recipient` | Your wallet address | `0x490A...CD33` |
-| `token` | Token contract (optional) | Default: DevUSDCe |
+## Why this is compelling
 
-## 🔗 API Endpoints
+- **Innovation**: “Sign once → recurring settlement” UX that feels like Web2 subscriptions, enabled by **x402 + EIP-3009**.
+- **Automated workflows**: a programmatic pipeline (scheduler + executor) that triggers on-chain settlement **without monthly user prompts**.
+- **Execution quality**: a complete, demo-ready flow (merchant → embed → customer sign → backend automation → on-chain settlement trail).
+- **Ecosystem value**: a reusable integration pattern (a **payment widget for SaaS**) that makes x402 easy to adopt in real products.
 
-### Widget API
-- `POST /api/widget/init` - Initialize widget, validate merchant
-- `POST /api/subscriptions` - Create new subscription
-- `GET /api/subscriptions` - List all subscriptions
-- `GET /api/subscriptions?customerAddress=0x...` - Get customer's subscriptions
+## Notes / limitations (demo scope)
 
-### Example: Create Subscription
-```bash
-curl -X POST http://localhost:8787/api/subscriptions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "merchantId": "demo-merchant-123",
-    "customerAddress": "0x...",
-    "recipient": "0x...",
-    "amount": "9990000",
-    "token": "0xf329184c1b464411bd683a2e8f42c1bfe42b2331",
-    "paymentHeader": "x402_...",
-    "maxExecutions": 12
-  }'
-```
+- Storage is **in-memory** (easy for demo; can be replaced by DB).
+- Token support is demo-focused: **DevUSDCe** on Cronos Testnet.
+- Schedule is **monthly** (MVP choice for the hackathon scope).
 
-## 🤖 How It Works
+## Future extensions (after hackathon)
 
-### 1. Customer Signs Once
-```typescript
-// Widget generates EIP-3009 signature
-const paymentHeader = await facilitator.generatePaymentHeader({
-  validBefore: Date.now() / 1000 + (365 * 24 * 60 * 60), // 1 year!
-  // ... other params
-});
-```
-
-### 2. Backend Stores Subscription
-```typescript
-{
-  id: "uuid",
-  customerAddress: "0x...",
-  paymentHeader: "x402_...",  // Reusable for 1 year!
-  schedule: {
-    type: "monthly",
-    nextExecution: timestamp,
-    executionCount: 0
-  }
-}
-```
-
-### 3. Scheduler Creates Monthly Intents
-```typescript
-// Runs every minute
-setInterval(() => {
-  const dueSubscriptions = getSubscriptions()
-    .filter(sub => sub.nextExecution <= Date.now());
-  
-  dueSubscriptions.forEach(sub => {
-    createIntent({
-      paymentHeader: sub.paymentHeader,  // Same signature!
-      // ...
-    });
-  });
-}, 60000);
-```
-
-### 4. Simple Executor Processes
-- Checks if intent is within deadline
-- Executes via x402 Facilitator (gas-free!)
-- Scheduler updates `nextExecution` to next month
-
-## 🎯 Value Proposition
-
-### For SaaS Platforms
-- ✅ Accept crypto subscriptions easily
-- ✅ No need to handle wallets or keys
-- ✅ 2-line integration
-- ✅ No credit card fees
-- ✅ Global accessibility
-
-### For Customers
-- ✅ Sign once, subscribe forever
-- ✅ Zero gas fees
-- ✅ No credit card needed
-- ✅ True ownership (funds in your wallet)
-- ✅ Cancel anytime (in production version)
-
-### Why x402 is Essential
-- 🚫 Without x402: Every payment needs new signature + gas fees
-- ✅ With x402: One signature valid for 1 year, enables automatic payments, zero gas fees
-- 🚫 Without x402: Users would abandon subscriptions due to monthly MetaMask prompts
-- ✅ With x402: Seamless UX like Web2 subscriptions
-
-## 🏆 Hackathon Criteria
-
-**Track**: x402 Agentic Finance/Payment — Advanced Programmatic Settlement & Workflows
-
-✅ **Recurring instruction sets** - Monthly automated payments  
-✅ **Advanced settlement** - Gas-free via x402 Facilitator  
-✅ **Multi-step automation** - Scheduler → Intent → AI → Settlement  
-✅ **EIP-3009** - Reusable signatures for recurring payments  
-✅ **Production-ready** - Complete merchant + customer flows  
-
-## 📊 Technical Highlights
-
-### EIP-3009 Signature Reuse
-One signature, valid for 1 year, enables unlimited monthly payments without user interaction.
-
-### Gas-Free Execution
-x402 Facilitator pays all gas fees. Customers only need tokens for the payment amount.
-
-### Simple & Reliable Execution
-Automatic execution of recurring payments on schedule, with on-chain intent registration for transparency.
-
-### Iframe Isolation
-Widget runs in isolated iframe for security, easy integration, and consistent UX across platforms.
-
-## 🔮 Future Enhancements
-
-- [ ] Merchant registration system
-- [ ] Customer subscription management UI
-- [ ] Multi-token support (ETH, other stablecoins)
-- [ ] Mainnet deployment
-- [ ] Webhook notifications for merchants
-- [ ] Analytics dashboard
-- [ ] White-label customization
-
-## 📄 Files Reference
-
-- `FINAL_CHECKLIST.md` - Presentation checklist and troubleshooting
-- `frontend/widget/README.md` - Widget technical documentation
-- `mvp-roadmap.md` - Original project planning (historical)
-
-## 🎤 Demo Script
-
-1. **Show Merchant Dashboard** (30s)
-   - Generate widget code
-   - Show how simple it is
-
-2. **Show SaaS Demo** (1 min)
-   - Real-world platform example
-   - Customer subscription flow
-   - MetaMask signature
-
-3. **Show Backend Logs** (30s)
-   - Subscription created
-   - Scheduler running
-   - Monthly execution
-
-4. **Explain Value** (1 min)
-   - One signature = infinite payments
-   - Zero gas fees
-   - Easy integration
-
-## 🙏 Acknowledgments
-
-Built for the **Cronos x402 Paytech Hackathon**  
-Powered by **Cronos EVM** and **Crypto.com Facilitator SDK**
-
----
-
-**Live Demo**: http://localhost:5173/saas-platform-demo.html  
-**Merchant Dashboard**: http://localhost:5173/merchant-dashboard.html  
-**Documentation**: See `FINAL_CHECKLIST.md` for full details
+- Merchant registry + API keys
+- Customer portal (manage/cancel subscriptions)
+- Multi-token support + pricing abstraction
+- Webhooks & receipts for SaaS backends
+- Mainnet deployment + production persistence
