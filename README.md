@@ -1,5 +1,7 @@
 # EmbedPay3 - Cronos x402 Recurring Subscription Widget (SaaS Payments)
 
+<img src="./frontend/public/logo.png" alt="EmbedPay3 Logo" width="120" />
+
 **A production-style, non-custodial recurring payment workflow for SaaS subscriptions on Cronos EVM — powered by x402.**
 
 This project was built for the **Cronos x402 Paytech Hackathon**, focusing on **x402-style programmatic payments** and **agentic/workflow automation** on-chain.

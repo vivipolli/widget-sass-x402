@@ -26,6 +26,14 @@ export const Logo = styled.h1`
   color: #ffffff;
   letter-spacing: -0.3px;
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+export const LogoImage = styled.img`
+  height: 32px;
+  width: auto;
 `;
 
 export const NavLinks = styled.div`

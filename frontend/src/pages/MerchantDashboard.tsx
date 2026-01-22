@@ -5,6 +5,7 @@ import {
   PageHeader,
   PageHeaderContent,
   PageTitle,
+  PageLogo,
   PageDescription,
   Card,
   CardTitle,
@@ -115,7 +116,10 @@ export default function MerchantDashboard() {
     <>
       <PageHeader>
         <PageHeaderContent>
-          <PageTitle>Merchant Dashboard</PageTitle>
+          <PageTitle>
+            <PageLogo src="/logo.png" alt="EmbedPay3" />
+            Merchant Dashboard
+          </PageTitle>
           <PageDescription>Configure and generate your EmbedPay3 widget</PageDescription>
         </PageHeaderContent>
       </PageHeader>

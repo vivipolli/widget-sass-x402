@@ -29,6 +29,14 @@ export const PageTitle = styled.h1`
   color: #ffffff;
   font-weight: 600;
   letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+export const PageLogo = styled.img`
+  height: 28px;
+  width: auto;
 `;
 
 export const PageDescription = styled.p`

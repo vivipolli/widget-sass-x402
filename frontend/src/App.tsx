@@ -3,6 +3,7 @@ import {
   AppContainer,
   Header,
   Logo,
+  LogoImage,
   NavLinks,
   QuickLinks,
   QuickLinkCard,
@@ -26,7 +27,10 @@ function HomePage() {
   return (
     <AppContainer>
       <Header>
-        <Logo>EmbedPay3</Logo>
+        <Logo>
+          <LogoImage src="/logo.png" alt="EmbedPay3" />
+          EmbedPay3
+        </Logo>
         <NavLinks>
           <Link to="/merchant" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', fontSize: '14px', fontWeight: 500, padding: '8px 16px', borderRadius: '4px', transition: 'all 0.2s' }}>
             Merchant Dashboard
