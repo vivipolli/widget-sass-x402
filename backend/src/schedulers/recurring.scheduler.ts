@@ -72,7 +72,6 @@ export class RecurringScheduler {
         recipient: subscription.recipient,
         type: IntentType.Payment,
         deadline,
-        maxGasPrice: '5000',
         paymentHeader: subscription.paymentHeader,
       },
       subscription.customerAddress
