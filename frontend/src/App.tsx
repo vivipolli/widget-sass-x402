@@ -1,9 +1,9 @@
+import { Routes, Route, Link } from 'react-router-dom';
 import { 
   AppContainer,
   Header,
   Logo,
   NavLinks,
-  NavLink,
   QuickLinks,
   QuickLinkCard,
   QuickLinkIcon,
@@ -20,26 +20,31 @@ import {
 } from './App.styles';
 import { MdDashboard, MdPlayArrow } from 'react-icons/md';
 import { FiShield, FiZap, FiCode, FiLock } from 'react-icons/fi';
+import MerchantDashboard from './pages/MerchantDashboard';
 
-export default function App() {
+function HomePage() {
   return (
     <AppContainer>
       <Header>
-        <Logo>x402 Recurring Payments</Logo>
+        <Logo>EmbedPay3</Logo>
         <NavLinks>
-          <NavLink href="/merchant-dashboard.html">Merchant Dashboard</NavLink>
-          <NavLink href="/saas-platform-demo.html">SaaS Demo</NavLink>
+          <Link to="/merchant" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', fontSize: '14px', fontWeight: 500, padding: '8px 16px', borderRadius: '4px', transition: 'all 0.2s' }}>
+            Merchant Dashboard
+          </Link>
+          <a href="/saas-platform-demo.html" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', fontSize: '14px', fontWeight: 500, padding: '8px 16px', borderRadius: '4px', transition: 'all 0.2s' }}>
+            SaaS Demo
+          </a>
         </NavLinks>
       </Header>
 
       <WelcomeSection>
-        <WelcomeTitle>x402 Recurring Payment Platform</WelcomeTitle>
+        <WelcomeTitle>EmbedPay3</WelcomeTitle>
         <WelcomeText>
           Enable recurring crypto payments for your SaaS platform. Customers sign once,
           payments execute automatically every month with zero gas fees.
         </WelcomeText>
         <QuickLinks>
-          <QuickLinkCard href="/merchant-dashboard.html">
+          <QuickLinkCard as={Link} to="/merchant">
             <QuickLinkIcon>
               <MdDashboard />
             </QuickLinkIcon>
@@ -86,5 +91,14 @@ export default function App() {
         </WelcomeFeatures>
       </WelcomeSection>
     </AppContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/merchant" element={<MerchantDashboard />} />
+    </Routes>
   );
 }

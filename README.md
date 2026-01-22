@@ -1,4 +1,4 @@
-# Cronos x402 Recurring Subscription Widget (SaaS Payments)
+# EmbedPay3 - Cronos x402 Recurring Subscription Widget (SaaS Payments)
 
 **A production-style, non-custodial recurring payment workflow for SaaS subscriptions on Cronos EVM — powered by x402.**
 

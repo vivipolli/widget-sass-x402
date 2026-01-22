@@ -18,7 +18,7 @@ class PaymentWidget {
 
   constructor() {
     this.config = this.parseURLParams();
-    this.apiBase = this.config.apiBase || 'http://localhost:8787';
+    this.apiBase = this.config.apiBase || import.meta.env.VITE_API_BASE || 'http://localhost:8787';
     this.init();
   }
 

@@ -32,19 +32,9 @@ export const NavLinks = styled.div`
   display: flex;
   gap: 32px;
   align-items: center;
-`;
 
-export const NavLink = styled.a`
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s;
-  padding: 8px 16px;
-  border-radius: 4px;
-  
-  &:hover {
-    color: #3b82f6;
+  a:hover {
+    color: #3b82f6 !important;
     background: rgba(59, 130, 246, 0.1);
   }
 `;

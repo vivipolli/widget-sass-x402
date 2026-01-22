@@ -3,6 +3,7 @@ dist/
 build/
 .env
 .env.local
+.env.production
 *.log
 .DS_Store
 cache/
@@ -10,3 +11,6 @@ artifacts/
 typechain-types/
 coverage/
 *.tsbuildinfo
+railway.toml
+.railway
+.vercel
