@@ -15,6 +15,11 @@ class PaymentWidget {
   private signer?: ethers.Signer;
   private customerAddress?: string;
   private apiBase: string;
+  private subscriptionId?: string;
+  private testIntentId?: string;
+  private timerInterval?: number;
+  private pollingInterval?: number;
+  private testDeadline?: number;
 
   constructor() {
     this.config = this.parseURLParams();
@@ -69,6 +74,7 @@ class PaymentWidget {
     document.getElementById('connect-wallet-btn')!.addEventListener('click', () => this.connectWallet());
     document.getElementById('sign-btn')!.addEventListener('click', () => this.signAndSubscribe());
     document.getElementById('retry-btn')!.addEventListener('click', () => window.location.reload());
+    document.getElementById('test-payment-btn')!.addEventListener('click', () => this.startTestExecution());
   }
 
   private async connectWallet() {
@@ -146,6 +152,8 @@ class PaymentWidget {
 
       const subscription = await response.json();
 
+      this.subscriptionId = subscription.id;
+
       document.getElementById('sign-section')!.style.display = 'none';
       document.getElementById('success-section')!.style.display = 'block';
       document.getElementById('subscription-id')!.textContent = `ID: ${subscription.id}`;
@@ -153,6 +161,139 @@ class PaymentWidget {
     } catch (error: any) {
       this.showError(error.message || 'Failed to create subscription');
     }
+  }
+
+  private async startTestExecution() {
+    try {
+      if (!this.subscriptionId) {
+        throw new Error('No subscription ID available');
+      }
+
+      this.showStatus('Creating test execution...');
+
+      const response = await fetch(`${this.apiBase}/api/subscriptions/${this.subscriptionId}/test-execution`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create test execution');
+      }
+
+      const testExecution = await response.json();
+      this.testIntentId = testExecution.intentId;
+      this.testDeadline = testExecution.deadline;
+
+      document.getElementById('success-section')!.style.display = 'none';
+      document.getElementById('test-section')!.style.display = 'block';
+
+      this.startTimer();
+      this.startPolling();
+
+      this.showStatus('Test payment scheduled');
+    } catch (error: any) {
+      this.showError(error.message || 'Failed to start test execution');
+    }
+  }
+
+  private startTimer() {
+    if (!this.testDeadline) return;
+
+    this.updateTimer();
+    this.timerInterval = window.setInterval(() => this.updateTimer(), 1000);
+  }
+
+  private updateTimer() {
+    if (!this.testDeadline) return;
+
+    const now = Date.now();
+    const remaining = Math.max(0, this.testDeadline - now);
+    
+    const totalSeconds = Math.floor(remaining / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    const timerValue = document.getElementById('timer-value')!;
+    timerValue.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    if (remaining === 0 && this.timerInterval) {
+      document.getElementById('test-status-message')!.textContent = 'Executing payment...';
+    }
+  }
+
+  private startPolling() {
+    this.pollingInterval = window.setInterval(() => this.pollExecutionStatus(), 5000);
+    this.pollExecutionStatus();
+  }
+
+  private async pollExecutionStatus() {
+    try {
+      if (!this.subscriptionId || !this.testIntentId) return;
+
+      const response = await fetch(
+        `${this.apiBase}/api/subscriptions/${this.subscriptionId}/test-execution/${this.testIntentId}`
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to get execution status');
+      }
+
+      const status = await response.json();
+
+      if (status.status === 'executed' && status.txHash) {
+        this.stopPolling();
+        this.showTestResult(status.txHash);
+      } else if (status.status === 'failed') {
+        this.stopPolling();
+        this.showTestError('Payment execution failed');
+      } else if (status.status === 'monitoring') {
+        document.getElementById('test-status-message')!.textContent = 'Monitoring conditions...';
+      } else if (status.status === 'executing') {
+        document.getElementById('test-status-message')!.textContent = 'Executing payment...';
+      }
+    } catch (error: any) {
+      console.error('Error polling execution status:', error);
+    }
+  }
+
+  private stopPolling() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = undefined;
+    }
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = undefined;
+    }
+  }
+
+  private showTestResult(txHash: string) {
+    document.getElementById('test-status')!.style.display = 'none';
+    document.getElementById('timer-display')!.style.display = 'none';
+    
+    const resultDiv = document.getElementById('test-result')!;
+    const txLink = document.getElementById('tx-link') as HTMLAnchorElement;
+    const txHashDisplay = document.getElementById('tx-hash')!;
+
+    const explorerUrl = `https://explorer.cronos.org/testnet/tx/${txHash}`;
+    txLink.href = explorerUrl;
+    txHashDisplay.textContent = txHash;
+
+    resultDiv.style.display = 'block';
+    this.showStatus('Test payment executed successfully!');
+  }
+
+  private showTestError(message: string) {
+    document.getElementById('test-status')!.style.display = 'none';
+    document.getElementById('timer-display')!.style.display = 'none';
+    
+    const errorDiv = document.getElementById('test-error')!;
+    const errorMessage = document.getElementById('test-error-message')!;
+
+    errorMessage.textContent = message;
+    errorDiv.style.display = 'block';
+    this.showStatus('Test payment failed');
   }
 
   private showStatus(message: string) {

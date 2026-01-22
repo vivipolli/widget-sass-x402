@@ -61,6 +61,41 @@
                         <p>Payments will execute automatically every month</p>
                         <p id="subscription-id" class="small-text">-</p>
                     </div>
+                    <button id="test-payment-btn" class="test-button">
+                        🧪 Test Payment (1 min)
+                    </button>
+                </div>
+
+                <div id="test-section" style="display: none;">
+                    <div class="test-box">
+                        <div class="test-header">
+                            <div class="status-icon">⏱️</div>
+                            <h3>Test Payment Running</h3>
+                        </div>
+                        <div id="timer-display" class="timer-display">
+                            <div class="timer-label">Time remaining:</div>
+                            <div id="timer-value" class="timer-value">01:00</div>
+                        </div>
+                        <div id="test-status" class="test-status">
+                            <p id="test-status-message">Waiting for execution...</p>
+                        </div>
+                        <div id="test-result" class="test-result" style="display: none;">
+                            <div class="result-icon">✓</div>
+                            <h4>Payment Executed!</h4>
+                            <div class="tx-info">
+                                <span class="tx-label">Transaction:</span>
+                                <a id="tx-link" href="#" target="_blank" rel="noopener noreferrer" class="tx-link">
+                                    View on Explorer →
+                                </a>
+                            </div>
+                            <p id="tx-hash" class="tx-hash"></p>
+                        </div>
+                        <div id="test-error" class="test-error" style="display: none;">
+                            <div class="result-icon error">✕</div>
+                            <h4>Execution Failed</h4>
+                            <p id="test-error-message"></p>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="error-section" style="display: none;">
