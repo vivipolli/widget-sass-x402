@@ -1,6 +1,7 @@
 {
   "name": "ai-execution-agent-backend",
   "version": "1.0.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "lint": "eslint ./src --fix",
