@@ -8,10 +8,6 @@
       "destination": "/index.html"
     },
     {
-      "source": "/saas-platform-demo.html",
-      "destination": "/saas-platform-demo.html"
-    },
-    {
       "source": "/widget",
       "destination": "/widget/index.html"
     },
