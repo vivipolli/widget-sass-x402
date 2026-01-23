@@ -46,7 +46,15 @@ export class SimpleExecutor {
           continue;
         }
 
-        this.intentService.addLog(intent.id, 'info', '✅ Executing intent (within deadline)');
+        const timeUntilDeadline = intent.deadline - now;
+        const thirtySeconds = 30 * 1000;
+
+        if (timeUntilDeadline > thirtySeconds) {
+          console.log(`⏳ Intent ${intent.id}: waiting ${Math.floor(timeUntilDeadline / 1000)}s until deadline`);
+          continue;
+        }
+
+        this.intentService.addLog(intent.id, 'info', '✅ Executing intent (deadline approaching)');
         const txHash = await this.executionService.executeIntent(intent);
         this.intentService.markIntentExecuted(intent.id, txHash);
         this.intentService.addLog(intent.id, 'success', `🎉 Intent executed successfully! TxHash: ${txHash}`);
