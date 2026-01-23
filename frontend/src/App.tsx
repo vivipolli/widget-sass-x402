@@ -55,7 +55,7 @@ function HomePage() {
             Merchant Dashboard
           </Link>
           <a href="/saas-platform-demo.html" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', fontSize: '14px', fontWeight: 500, padding: '8px 16px', borderRadius: '8px', transition: 'all 0.2s' }}>
-            Live Demo
+            SaaS Demo 
           </a>
         </NavLinks>
       </Header>
@@ -78,7 +78,7 @@ function HomePage() {
             Get Started Free
           </CTAButton>
           <CTASecondary href="/saas-platform-demo.html">
-            View Demo
+            SaaS Demo 
           </CTASecondary>
         </HeroCTA>
       </HeroSection>
